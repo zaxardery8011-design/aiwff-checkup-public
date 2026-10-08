@@ -1,0 +1,136 @@
+{
+  "schema": "aiwff_checkup_log/v1",
+  "checkup_version": "1.1",
+  "generated_at": "time_class_b",
+  "elapsed_ms": 980,
+  "machine": {
+    "os": "win32",
+    "os_release": "os_build_class",
+    "arch": "x64",
+    "cpu_count": 4,
+    "mem_gb": 8,
+    "node_version": "node_class",
+    "host_id": "host_class_b",
+    "root_scanned": "scan_root_b"
+  },
+  "brain_type": {
+    "claude_code_cli_on_path": true,
+    "claude_home_dir": true,
+    "claude_desktop_config": false,
+    "other_engines_on_path": [
+      "本機模型"
+    ],
+    "type": "claude_code+multi_engine"
+  },
+  "memory_rules": {
+    "rules_files": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "SOUL.md"
+    ],
+    "rules_file_count": 3,
+    "claude_auto_memory_dirs": "mem_dir_class",
+    "project_memory_dirs": [
+      "memory",
+      "memory",
+      "memory",
+      "memory",
+      "memory",
+      "brain"
+    ],
+    "memory_file_count": 6
+  },
+  "dispatch": {
+    "subagent_definitions": 0,
+    "skills_installed": 0,
+    "file_queue_dirs": [
+      "tasks",
+      "inbox",
+      "tasks",
+      "tasks",
+      "coordination"
+    ],
+    "file_queue_dir_count": 5,
+    "other_engines_on_path": [
+      "本機模型"
+    ]
+  },
+  "ports": {
+    "available": true,
+    "all_interfaces_non_os": 0,
+    "all_interfaces_ports": [],
+    "loopback_only": 0,
+    "tailnet_only": 1,
+    "tailnet_ports": [
+      41012
+    ],
+    "os_owned_ports": [
+      41022
+    ],
+    "owner_lookup": "pid",
+    "os_owned_count": 1
+  },
+  "gates": [
+    {
+      "gate": 1,
+      "name": "能跑工具",
+      "auto": "pass",
+      "evidence": "brain.type=claude_code+multi_engine",
+      "self_answer": "pass 主程式找得到"
+    },
+    {
+      "gate": 2,
+      "name": "有邊界",
+      "auto": "pass",
+      "evidence": "rules=3 deny=0 PreToolUse_hook=true listen_all_if_non_os=0 tailnet=1 os_owned=1",
+      "self_answer": "fail 自評認為對外還沒收好"
+    },
+    {
+      "gate": 3,
+      "name": "有記憶",
+      "auto": "pass",
+      "evidence": "memory_files=6 auto_memory_dirs=mem_dir_class",
+      "self_answer": "pass 有記憶目錄"
+    },
+    {
+      "gate": 4,
+      "name": "有活路徑",
+      "auto": "unknown",
+      "evidence": "近 48h 有更新的 log/jsonl=log_count_b（有 log 只代表有東西在跑，主路徑要看 self_answer）",
+      "self_answer": "unknown 還沒對上會自己跑的東西"
+    },
+    {
+      "gate": 5,
+      "name": "會驗證不吃自報",
+      "auto": "unknown",
+      "evidence": "test_files=test_count_b（自動偵測不判過，需人看讀回證據）",
+      "self_answer": "unknown 讀回還沒看"
+    },
+    {
+      "gate": 6,
+      "name": "會派工給副腦",
+      "auto": "unknown",
+      "evidence": "subagents=0 queue_dirs=5 engines=1 result_files=result_count_b",
+      "self_answer": "fail 自評認為沒有派出去"
+    },
+    {
+      "gate": 7,
+      "name": "治理閘上線",
+      "auto": "pass",
+      "evidence": "hook_events=[PreToolUse] deny=0 allow=allow_count_class",
+      "self_answer": "pass 有擋下的事件"
+    },
+    {
+      "gate": 8,
+      "name": "會員／對外平台",
+      "auto": "manual_only",
+      "evidence": "自動偵測不涵蓋，只看 self_answer",
+      "self_answer": "unknown 會員還沒做"
+    }
+  ],
+  "first_auto_gap": null,
+  "scan_truncated": true,
+  "scanned_entries": 5000,
+  "answers_file": "checkup_answers.json",
+  "note": "本 LOG 只描述現況，不判階段。階段與下一步看同目錄的對照表。"
+}

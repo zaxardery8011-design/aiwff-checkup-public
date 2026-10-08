@@ -1,0 +1,9 @@
+# Local scan inputs and outputs
+/aiwff_checkup_log.json
+/aiwff_checkup_log.json.tmp
+/aiwff_checkup_report.md
+/checkup_answers.json
+/gap.md
+
+# The tracked example is intentionally retained.
+!/examples/gap.md
