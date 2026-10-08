@@ -1,6 +1,6 @@
 ## 給群組幫忙測的人
 
-這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node，在這包的資料夾跑 `node aiwff_checkup.js --report`。回報時貼產生的白話報告，刪掉自己的自答與看起來私人的內容；不要貼原始 json log。
+這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node，在這包的資料夾跑 `node aiwff_checkup.js --report`。回報時貼產生的白話報告，貼之前刪掉埠號、檔名、自己的自答原文，以及看起來私人的內容；不要貼原始 json log。
 
 # aiwff-checkup
 
