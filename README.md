@@ -1,6 +1,40 @@
 ## 給群組幫忙測的人
 
-這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node，在這包的資料夾跑 `node aiwff_checkup.js --report`。回報時貼產生的白話報告，貼之前刪掉埠號、檔名、自己的自答原文，以及看起來私人的內容；不要貼原始 json log。
+這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node。人留在這包的資料夾，掃你平常跟 AI 工作的資料夾，結果寫到另一個資料夾：
+
+node aiwff_checkup.js --root <你平常跟 AI 工作的資料夾> --out <另一個資料夾> --report
+
+不要省略 `--root`。省略時掃到的是這包自己的資料夾，包內測試檔會算進第 5 關。回報只貼下面「複製給你的 AI」末尾那個固定回報塊。不要貼白話報告，不要貼原始 json log。
+
+## 複製給你的 AI
+
+把下面整段貼給你的 AI。它問完、你同意之前，不要讓它跑。
+
+你是我這台電腦上的助手。依序做。我同意之前不要執行命令。做完只輸出文末的固定回報塊。
+
+第一步。先問我兩件事。
+要掃哪個資料夾。必須是我平常跟 AI 工作的資料夾，不是健檢這包自己的資料夾。
+要不要讀這台電腦的共用設定。不要讀就在命令加上 `--no-machine`。
+我沒有同意就停。不要跑，也不要輸出回報塊。
+
+第二步。我同意之後，依我講的實際情況代寫八關自評。我不確定的關寫 unknown，不要猜成 pass。八關是：1 能跑工具、2 有邊界、3 有記憶、4 有活路徑、5 會驗證不吃自報、6 會派工給副腦、7 治理閘上線、8 會員／對外平台。每一關的值只能是 pass、fail 或 unknown，後面空一格，再一句理由，最長 600 字。鍵名用 "1" 到 "8"。輸出資料夾要先存在。檔寫到那個資料夾，檔名 checkup_answers.json。不要寫進被掃的資料夾。
+
+第三步。人留在健檢這包的資料夾，執行：
+
+node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --answers <輸出資料夾>/checkup_answers.json --report
+
+我不讀共用設定時，同一條加上 `--no-machine`。跑完讀輸出資料夾的 aiwff_checkup_log.json，以及健檢這包的 LOG_TO_PLAN.md。先看 checkup_version、gates 八筆、first_auto_gap。確認 answers_file 不是 null。是 null 就表示自評沒烤進去，不要輸出回報塊，先改路徑再跑。不要改腳本。不要把設定檔內文抄出來。
+
+最後只輸出這六列，不要加欄，不要寫別的：
+
+版本: <log 的 checkup_version，原樣，不要自加 v>
+八關自動判定: <終端第五行原樣。前四行是完成一句、LOG 檔名、sha256、位元組數。第五行整行貼上，不要翻譯 pass、fail、unknown、manual_only>
+第一個缺口關號: <log 的 first_auto_gap。只有 auto 為 fail 才算。值是 null 就填無。不要填白話報告「走到第幾關」>
+八關自評: 1=<pass|fail|unknown> 2=<pass|fail|unknown> 3=<pass|fail|unknown> 4=<pass|fail|unknown> 5=<pass|fail|unknown> 6=<pass|fail|unknown> 7=<pass|fail|unknown> 8=<pass|fail|unknown>
+疑似誤判關號: <只填關號，多個用逗號、不空格，例如 2,5。自評是 pass 且自動是 fail，或自評是 fail 且自動是 pass，才列入。沒有就填無>
+同意被記錄: <先問我。可以就填是，不要就填否>
+
+自評那一列只寫 pass、fail、unknown。沒寫到的關填 unknown。不要寫 not_answered，不要寫理由。不要出現路徑、埠號、名字、帳號、客戶或專案名、主機名、host_id、root_scanned、answers_file、evidence、自答理由。同意被記錄是否時，叫我改走私訊，不要把回報塊貼進群組。
 
 # aiwff-checkup
 
@@ -29,19 +63,21 @@
 
 設定會依序從 `CLAUDE_CONFIG_DIR`、掃描目錄內的 `.claude`、掃描目錄內的 `.claude_home`、使用者家目錄的 `.claude` 選一個可用目錄讀取。技能、設定與 agents 都只讀選中的那一個。`CLAUDE_CONFIG_DIR` 與家目錄設定是 `machine`（這台電腦共用），掃描目錄底下的是 `root`；log 的相關計數會分開列出兩個 scope，不會寫設定路徑。
 
-結果怎麼看：看 `first_auto_gap`，那是第一個沒過的關，先修這個；沒有任何一關沒過時，它是空的。`unknown` 是工具看不出來，問你的 AI，並看你自己填的那句。`manual_only` 是這關只能人答，工具不會自己判。
+結果怎麼看：看 `first_auto_gap`，那是第一個 auto 為 fail 的關，先修這個。沒有 fail 時它是空的。`unknown` 與 `manual_only` 不是過，但不會寫進這個欄位。`unknown` 是工具看不出來，問你的 AI，並看你自己填的那句。`manual_only` 是這關只能人答，工具不會自己判。
 
 ## 兩種跑法
 
 腳本檔名是 `aiwff_checkup.js`。它會讀選中的工具設定目錄、PATH，以及目前在聽的埠。唯一留下的檔是 LOG，使用 `--report` 時另有報告。寫入時先寫同名 `.tmp`，再改成 LOG。
 
-(a) 把 `aiwff_checkup.js` 和 `gap.js` 一起複製到要檢查的資料夾，在那個資料夾執行：
+(a) 把 `aiwff_checkup.js`、`report.js` 和 `gap.js` 一起複製到要檢查的資料夾，在那個資料夾執行：
 
 ```text
 node aiwff_checkup.js
 ```
 
 LOG 寫在同一個資料夾，檔名 `aiwff_checkup_log.json`。想同時產生給人看的報告，就加 `--report`。
+
+加 `--report` 時，`report.js` 要和 `aiwff_checkup.js` 在同一個資料夾。沒有這支檔，LOG 寫完後命令會停，終端五行不會印出。
 
 (b) 人留在腳本所在的資料夾，指定別的目錄：
 
@@ -64,6 +100,8 @@ node aiwff_checkup.js --root <要檢查的目錄> --no-machine --report
 空目錄 `fixture_blank` 用來試「還沒有自答檔」的跑法，把 `--root` 指到它即可。這個空資料夾在同一包裡，不用自己建。八關結果跟著這台電腦變，不要把某一次的終端稿當成規格。
 
 打錯或漏填 --root 的目錄會顯示 ROOT_NOT_FOUND 並停止，不產生結果。加上 --no-machine 時，第 1 關的理由表示沒有查電腦上的 AI 程式。
+
+已知限制：這支腳本認的是路徑上的 claude、codex、gemini、ollama、aider、cursor，選中的設定目錄，以及桌面版設定檔。這些都沒有時，第 1 關會顯示沒過。只用網頁版的人，若這台也沒有上面那些，第 1 關會顯示沒過。有其中任一項時，不會因為人只用網頁版就判沒過。這個判定不改。
 
 ## 終端五行
 
@@ -100,7 +138,7 @@ log 會留下 `host_id`、CPU 數、記憶體、作業系統、Node 版、埠號
 }
 ```
 
-沒有這份檔時，log 的 `answers_file` 是 null，八關 `self_answer` 都是 `not_answered`，第 8 關 `auto` 固定 `manual_only`。自答不會改變自動判定。它會顯示在「你的自答」欄，供人對照第 4～6 關的實際情況。做法：複製 `checkup_answers.example.json` 成 `checkup_answers.json`，改成你的情況，再跑 `node aiwff_checkup.js --answers checkup_answers.json --report`。
+沒有這份檔時，log 的 `answers_file` 是 null，八關 `self_answer` 都是 `not_answered`，第 8 關 `auto` 固定 `manual_only`。自答不會改變自動判定。它會顯示在「你的自答」欄，供人對照第 4～6 關的實際情況。做法：自評檔寫到輸出資料夾，不要寫進被掃的資料夾。再跑 `node aiwff_checkup.js --root <要檢查的目錄> --out <輸出目錄> --answers <輸出目錄>/checkup_answers.json --report`。
 
 ## 怎麼看差距
 
@@ -136,11 +174,17 @@ node gap.js <log 的路徑>
 
 ## 給 AI
 
-請用上面兩種跑法的其中一種。然後只讀 LOG。先看 `checkup_version`、`gates` 八筆和 `first_auto_gap`。下一步看同目錄的 `LOG_TO_PLAN.md`。不要改腳本，不要把設定檔內文抄出來。
+只使用 (b)。人留在這包的資料夾，執行：
+
+node aiwff_checkup.js --root <要檢查的目錄> --out <輸出目錄> --report
+
+要只看指定資料夾、不讀這台共用設定，就加 `--no-machine`。不要使用 (a)。不要省略 `--root`。
+
+自評檔放哪、同意後才跑、最後只輸出的固定回報塊，以「複製給你的 AI」那一段為準。跑完只讀輸出資料夾的 LOG，以及這包的 `LOG_TO_PLAN.md`。先看 `checkup_version`、`gates` 八筆和 `first_auto_gap`。不要改腳本，不要把設定檔內文抄出來。
 
 ## 校準與誤判
 
-定案逐列在 `CALIBRATION.md`。誤判、讀法、無誤判和出處待補在 `MISJUDGMENTS.md`。隊長確認了主腦起草的判定。兩份都不寫彙總比例，也不改腳本的判定。表內工具版本混用，不能讀成這個目錄裡的 v1.2.2 已經校準。
+定案逐列在 `CALIBRATION.md`。誤判、讀法、無誤判和出處待補在 `MISJUDGMENTS.md`。各列判定照這兩份原文登錄。兩份都不寫彙總比例，也不改腳本的判定。表內工具版本混用，不能讀成這個目錄裡的 v1.2.2 已經校準。
 
 ## 授權
 
