@@ -53,3 +53,30 @@ test('CLI wires evidence and no-machine keeps root evidence', () => {
   assert.equal(log.brain_type.machine_config_enabled,false);
   assert.match(fs.readFileSync(path.join(out,'aiwff_checkup_report.md'),'utf8'),/找到近兩天與 runner 同名的非空產出/);
 });
+
+test('CLI merge keeps evidence pass and conservatively downgrades empty outputs when old scan truncates', () => {
+  const cp = require('child_process');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'aiwff-v13-merge-'));
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'aiwff-v13-merge-out-'));
+  const write = (name, body) => {
+    const p = path.join(dir, name);
+    fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, body);
+    const time = new Date(Date.now() - 1000); fs.utimesSync(p, time, time);
+  };
+  for (let i = 0; i < 5001; i++) write('a-filler/' + i + '.txt', '');
+  write('cron/tick.ps1', 'runner'); write('tests/a.test.js', 'test');
+  write('codex_bus/to_codex/job.md', 'request');
+  const outputs = ['logs/tick.log', 'test-results.json', 'codex_bus/to_brain/job_reply.md'];
+  function run() {
+    const r = cp.spawnSync(process.execPath, [path.join(__dirname, '../aiwff_checkup.js'), '--root', dir, '--out', out, '--no-machine'], { encoding: 'utf8' });
+    assert.equal(r.status, 0, r.stderr);
+    const log = JSON.parse(fs.readFileSync(path.join(out, 'aiwff_checkup_log.json'), 'utf8'));
+    assert.equal(log.scan_truncated, true);
+    return log.gates.slice(3, 6);
+  }
+  for (const name of outputs) write(name, 'output');
+  assert.ok(run().every(g => g.auto === 'pass' && /incomplete=0/.test(g.evidence)));
+  for (const name of outputs) write(name, '');
+  assert.ok(inspectEvidence(dir).every(g => g.auto === 'fail'));
+  assert.ok(run().every(g => g.auto === 'unknown' && /未找到不代表沒有/.test(g.evidence)));
+});

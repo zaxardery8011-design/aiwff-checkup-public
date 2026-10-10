@@ -44,6 +44,7 @@ function selfAnswerText(gate) {
 }
 
 function plainReason(gate, memoryBasis, machineEnabled) {
+  if (Number(gate.gate) !== 2 && /未找到不代表沒有/.test(gate.evidence || '')) return '走訪已截斷；沒有看到的項目無法判定是否存在。';
   const n = Number(gate.gate);
   const state = gate.auto;
   if (n === 1) {
@@ -53,6 +54,7 @@ function plainReason(gate, memoryBasis, machineEnabled) {
       : '沒有找到可用的主程式或相關工具。';
   }
   if (n === 2) {
+    if (gate.subchecks) return `AI 邊界（規則／deny／hook）：${STATUS[gate.subchecks.ai_boundary.auto]}；機器暴露面（埠）：${STATUS[gate.subchecks.machine_exposure.auto]}。`;
     const note = machineNote(gate, ['machine_rules', 'machine_deny', 'machine_PreToolUse_hook']);
     return state === 'pass' ? `找到規則與基本限制。${note}` : state === 'fail' ? `缺少規則，或發現對外的非系統連線埠。${note}` : `有一些規則，但限制是否足夠看不出來。${note}`;
   }
@@ -105,6 +107,7 @@ function buildReport(log) {
   lines.push('', '## 這份報告看不到的', '');
   lines.push('- `root` 只算 `--root` 底下的檔案；`machine` 是這台電腦的共用設定（環境變數或家目錄）。要只看指定資料夾，請加 `--no-machine`。');
   const missingAnswers = gates.filter(g => g.self_answer === 'not_answered').length;
+  if (log.brain_type && log.brain_type.config_dir_is_nested_project_dir) lines.push('- ROOT 是家目錄的 .claude 本身；其中的 .claude 子目錄是專案層設定，請確認設定來源。');
   if (log.scan_truncated) lines.push('- 總走訪已截斷；沒有直接列到的內容，計數可能只是下限。');
   if (missingAnswers) {
     lines.push(`- 有 ${missingAnswers} 關沒有自答；工具不能替你補上實際情況。`);
