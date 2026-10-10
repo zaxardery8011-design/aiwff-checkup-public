@@ -64,9 +64,11 @@ function plainReason(gate, memoryBasis, machineEnabled) {
       ? `找到 ${total || '一些'} 份記憶檔（.md／.json，含 ${memoryBasisText(memoryBasis)} 類目錄）。${machineNote(gate, ['machine_memory_files', 'machine_auto_memory_dirs'])}`
       : '沒有找到記憶檔。';
   }
-  if (n === 4) return state === 'fail' ? '沒有找到近兩天有更新的紀錄。' : '有近期紀錄，但它不能證明主要流程會自己跑。';
-  if (n === 5) { const c = countFromEvidence(gate, 'test_files'); return state === 'fail' ? '沒有找到測試檔。' : `找到 ${c == null ? '一些' : c} 個測試檔，但仍要人讀回執行結果。`; }
-  if (n === 6) return state === 'fail' ? '沒有看到副腦設定、佇列或其他派工引擎。' : `看到派工線索，但無法證明工作真的完成。${machineNote(gate, ['machine_subagents', 'machine_engines'])}`;
+  if (n >= 4 && n <= 6) {
+    if (state === 'fail') return '找到近期空的對應產出；仍需人工確認失敗原因。';
+    if (state === 'unknown') return '可讀的檔案中，沒有足夠的近期對應證據。';
+    return ['找到近兩天與 runner 同名的非空產出。', '找到測試檔及近期結果、CI 設定或測試提交。', '找到第二引擎派工及近期對應回件。'][n - 4];
+  }
   if (n === 7) return state === 'pass' ? `找到執行前攔截或拒絕規則。${machineNote(gate, ['machine_PreToolUse_hook', 'machine_deny'])}` : '沒有找到執行前攔截或拒絕規則。';
   return '這一關只能由你依實際對外情況回答。';
 }

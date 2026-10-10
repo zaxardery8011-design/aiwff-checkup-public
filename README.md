@@ -8,7 +8,7 @@
 
 這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node。人留在這包的資料夾，掃你平常跟 AI 工作的資料夾，結果寫到另一個資料夾：
 
-node aiwff_checkup.js --root <你平常跟 AI 工作的資料夾> --out <另一個資料夾> --report
+node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --answers <輸出資料夾>/checkup_answers.json --report
 
 不要省略 `--root`。省略時掃到的是這包自己的資料夾，包內測試檔會算進第 5 關。回報只貼下面「複製給你的 AI」末尾那個固定回報塊。不要貼白話報告，不要貼原始 json log。
 
@@ -77,7 +77,7 @@ node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --a
 
 腳本檔名是 `aiwff_checkup.js`。它會讀選中的工具設定目錄、PATH，以及目前在聽的埠。唯一留下的檔是 LOG，使用 `--report` 時另有報告。寫入時先寫同名 `.tmp`，再改成 LOG。
 
-(a) 把 `aiwff_checkup.js`、`report.js` 和 `gap.js` 一起複製到要檢查的資料夾，在那個資料夾執行：
+(a) 把 `aiwff_checkup.js`、`evidence.js`、`report.js` 和 `gap.js` 一起複製到要檢查的資料夾，在那個資料夾執行：
 
 ```text
 node aiwff_checkup.js
@@ -192,7 +192,7 @@ node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --a
 
 ## 校準與誤判
 
-定案逐列在 `CALIBRATION.md`。誤判、讀法、無誤判和出處待補在 `MISJUDGMENTS.md`。各列判定照這兩份原文登錄。兩份都不寫彙總比例，也不改腳本的判定。表內工具版本混用，不能讀成這個目錄裡的 v1.2.2 已經校準。
+定案逐列在 `CALIBRATION.md`。誤判、讀法、無誤判和出處待補在 `MISJUDGMENTS.md`。各列判定照這兩份原文登錄。兩份都不寫彙總比例，也不改腳本的判定。表內工具版本混用，不能讀成這個目錄裡的 v1.3.0 已經校準。
 
 ## 授權
 

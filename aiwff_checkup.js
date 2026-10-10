@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 架構健檢 v1.2.2。零依賴。Windows、macOS、Linux 都能跑。
+// 架構健檢 v1.3.0。零依賴。Windows、macOS、Linux 都能跑。
 // Linux 與 macOS 不查行程擁有者。沒有 --tasklist-file 時，行程名稱是空的。
 // 第 2 關在這兩個系統上不靠行程名稱判斷「作業系統自己的埠」，主要靠固定埠表。
 // 固定埠表（含 22、445、3389，以及 135、139、5040、5357、7680、49664–49670、631、5000、7000）。
@@ -518,6 +518,7 @@ function runCheckup() {
   const answers = readJson(ANSWERS) || {};
   function A(n) { const v = answers[String(n)] || answers['gate' + n]; return v ? String(v).slice(0, 600) : 'not_answered'; }
   function G(n, name, auto, evidence) { return { gate: n, name, auto, evidence, self_answer: A(n) }; }
+  const evidenceGates = require('./evidence').inspectEvidence(ROOT);
   const gates = [
     G(1, '能跑工具', brain.type === 'none_detected' ? 'fail' : 'pass',
       `brain.type=${brain.type}`),
@@ -527,19 +528,14 @@ function runCheckup() {
       `root_rules=${rootRulesFiles.length} machine_rules=${machineRulesFiles.length} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_listen_all_if_non_os=0 machine_listen_all_if_non_os=${ports.available ? ports.all_interfaces_non_os : 'n/a'} root_tailnet=0 machine_tailnet=${ports.available ? ports.tailnet_only : 'n/a'} root_os_owned=0 machine_os_owned=${ports.available ? ports.os_owned_count : 'n/a'}`),
     G(3, '有記憶', memoryFiles.size > 0 ? 'pass' : 'fail',
       `root_memory_files=${rootMemoryFiles.size} machine_memory_files=${machineMemoryFiles.size} root_auto_memory_dirs=${rootMemDirsFromConfig} machine_auto_memory_dirs=${machineMemDirs}`),
-    G(4, '有活路徑', recentLogs.length ? 'unknown' : 'fail',
-      `近 48h 有更新的 log/jsonl=${recentLogs.length}（有 log 只代表有東西在跑，主路徑要看 self_answer）`),
-    G(5, '會驗證不吃自報', testFiles ? 'unknown' : 'fail',
-      `test_files=${testFiles}（自動偵測不判過，需人看讀回證據${scan.truncated ? '；總走訪已截斷，計數可能是下限' : ''}）`),
-    G(6, '會派工給副腦', subagent_defs || queueDirs.length || brain.other_engines_on_path.length ? 'unknown' : 'fail',
-      `root_subagents=${rootSubagentDefs} machine_subagents=${machineSubagentDefs} root_queue_dirs=${queueDirs.length} machine_queue_dirs=0 root_engines=0 machine_engines=${brain.other_engines_on_path.length} root_result_files=${resultFiles} machine_result_files=0`),
+    ...evidenceGates.map(g => G(g.gate, g.name, g.auto, g.evidence)),
     G(7, '治理閘上線', hookEvents.has('PreToolUse') || denyCount ? 'pass' : 'fail',
       `root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_allow=${rootAllowCount} machine_allow=${machineAllowCount}`),
     G(8, '會員／對外平台', 'manual_only', '自動偵測不涵蓋，只看 self_answer')
   ];
 
   const log = {
-    schema: SCHEMA, checkup_version: '1.2.2', generated_at: new Date().toISOString(), elapsed_ms: 0,
+    schema: SCHEMA, checkup_version: '1.3.0', generated_at: new Date().toISOString(), elapsed_ms: 0,
     machine, brain_type: brain, memory_rules, dispatch, ports, gates,
     first_auto_gap: (gates.find(g => g.auto === 'fail') || {}).gate || null,
     scan_truncated: scan.truncated, scanned_entries: scan.entries.length,
