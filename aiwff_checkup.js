@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 架構健檢 v1.2.2。零依賴。Windows、macOS、Linux 都能跑。
+// 架構健檢 v1.2.3。零依賴。Windows、macOS、Linux 都能跑。
 // Linux 與 macOS 不查行程擁有者。沒有 --tasklist-file 時，行程名稱是空的。
 // 第 2 關在這兩個系統上不靠行程名稱判斷「作業系統自己的埠」，主要靠固定埠表。
 // 固定埠表（含 22、445、3389，以及 135、139、5040、5357、7680、49664–49670、631、5000、7000）。
@@ -254,6 +254,7 @@ function runCheckup() {
   }
   function short(p) { return p.startsWith(HOME) ? '~' + p.slice(HOME.length).replace(/\\/g, '/') : p.replace(/\\/g, '/'); }
 
+  const SCAN_SKIP = new Set(['file-history', 'cache', 'archive', 'backups', 'worktrees', '.hypothesis', 'node_modules', '.git']);
   function walk(root, maxDepth, cap) {
     const out = []; let truncated = false;
     (function rec(d, depth) {
@@ -261,7 +262,7 @@ function runCheckup() {
       let ents; try { ents = fs.readdirSync(d, { withFileTypes: true }); } catch (e) { return; }
       for (const e of ents) {
         if (out.length >= cap) { truncated = true; return; }
-        if (e.name === 'node_modules' || e.name === '.git') continue;
+        if (SCAN_SKIP.has(e.name.toLowerCase())) continue;
         const p = path.join(d, e.name);
         out.push({ p, dir: e.isDirectory() });
         if (e.isDirectory()) rec(p, depth + 1);
@@ -305,11 +306,13 @@ function runCheckup() {
 
   const configChoices = [
     ...(!noMachine ? [{ source: 'env', scope: 'machine', dir: process.env.CLAUDE_CONFIG_DIR }] : []),
+    ...((exists(path.join(ROOT, 'settings.json')) || (isDir(path.join(ROOT, 'projects')) && exists(path.join(ROOT, 'CLAUDE.md'))))
+      ? [{ source: 'root_self', scope: 'root', dir: ROOT }] : []),
     { source: 'root_dot_claude', scope: 'root', dir: path.join(ROOT, '.claude') },
     { source: 'root_dot_claude_home', scope: 'root', dir: path.join(ROOT, '.claude_home') },
     ...(!noMachine ? [{ source: 'home_dot_claude', scope: 'machine', dir: path.join(HOME, '.claude') }] : [])
   ];
-  const configChoice = configChoices.find(c => c.dir && isDir(c.dir));
+  const configChoice = configChoices.find(c => c.dir && isDir(c.dir) && !(exists(path.join(c.dir, 'settings.local.json')) && !exists(path.join(c.dir, 'settings.json'))));
   const configDir = configChoice ? path.resolve(configChoice.dir) : null;
   const configDirSource = configChoice ? configChoice.source : 'none';
   const configScope = configChoice ? configChoice.scope : 'none';
@@ -323,6 +326,7 @@ function runCheckup() {
     claude_home_dir: !!configDir,
     config_dir_source: configDirSource,
     config_scope: configScope,
+    config_dir_is_nested_project_dir: path.resolve(ROOT).toLowerCase() === path.resolve(HOME, '.claude').toLowerCase(),
     machine_config_enabled: !noMachine,
     claude_desktop_config: !noMachine && exists(desktopCfg),
     other_engines_on_path: noMachine ? [] : ['codex', 'gemini', 'ollama', 'aider', 'cursor'].filter(which),
@@ -359,7 +363,8 @@ function runCheckup() {
   const RULE_NAMES = ['CLAUDE.md', 'AGENTS.md', 'GEMINI.md', 'SOUL.md', '.cursorrules'];
   const isRuleName = n => RULE_NAMES.includes(n) || /^SOUL.*\.md$/i.test(n);
   const isRuleBackup = n => /_\d{4}-\d{2}-\d{2}|_\d{8}_/.test(n);
-  const ruleCandidates = walk(ROOT, 1, 5000).entries
+  const ruleScan = walk(ROOT, 1, 5000);
+  const ruleCandidates = ruleScan.entries
     .filter(e => !e.dir && isRuleName(path.basename(e.p)));
   const rules_backup_count = ruleCandidates.filter(e => isRuleBackup(path.basename(e.p))).length;
   const rules_files = ruleCandidates
@@ -444,7 +449,8 @@ function runCheckup() {
   };
 
   const DAY = 86400000;
-  const recentLogs = scan.entries.filter(e => !e.dir && /\.(log|jsonl)$/i.test(e.p))
+  const recentLogScan = walk(ROOT, 3, Infinity);
+  const recentLogs = recentLogScan.entries.filter(e => !e.dir && /\.(log|jsonl)$/i.test(e.p))
     .filter(e => { try { return Date.now() - fs.statSync(e.p).mtimeMs < 2 * DAY; } catch (x) { return false; } });
   const resultFiles = scan.entries.filter(e => !e.dir && /(result|report|done|out)\.(md|json)$/i.test(path.basename(e.p))).length;
   const TEST_FILE_RE = /(^test[-_]|\.test\.|_test\.|\.spec\.)/i;
@@ -518,13 +524,17 @@ function runCheckup() {
   const answers = readJson(ANSWERS) || {};
   function A(n) { const v = answers[String(n)] || answers['gate' + n]; return v ? String(v).slice(0, 600) : 'not_answered'; }
   function G(n, name, auto, evidence) { return { gate: n, name, auto, evidence, self_answer: A(n) }; }
+  const scanTruncated = scan.truncated || ruleScan.truncated;
+  const aiBoundary = !allRulesFiles.length ? (scanTruncated ? 'unknown' : 'fail')
+    : (denyCount || hookEvents.has('PreToolUse')) ? 'pass' : 'unknown';
+  const machineExposure = !ports.available ? 'unknown' : ports.all_interfaces_non_os > 0 ? 'fail' : 'pass';
+  const boundaryAuto = [aiBoundary, machineExposure].includes('fail') ? 'fail'
+    : aiBoundary === 'pass' && machineExposure === 'pass' ? 'pass' : 'unknown';
   const gates = [
     G(1, '能跑工具', brain.type === 'none_detected' ? 'fail' : 'pass',
       `brain.type=${brain.type}`),
-    G(2, '有邊界', !allRulesFiles.length ? 'fail'
-        : (ports.available && ports.all_interfaces_non_os > 0) ? 'fail'
-        : (denyCount || hookEvents.has('PreToolUse')) && ports.available ? 'pass' : 'unknown',
-      `root_rules=${rootRulesFiles.length} machine_rules=${machineRulesFiles.length} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_listen_all_if_non_os=0 machine_listen_all_if_non_os=${ports.available ? ports.all_interfaces_non_os : 'n/a'} root_tailnet=0 machine_tailnet=${ports.available ? ports.tailnet_only : 'n/a'} root_os_owned=0 machine_os_owned=${ports.available ? ports.os_owned_count : 'n/a'}`),
+    G(2, '有邊界', boundaryAuto,
+      `AI 邊界（規則／deny／hook）=${aiBoundary} 機器暴露面（埠）=${machineExposure} root_rules=${rootRulesFiles.length} machine_rules=${machineRulesFiles.length} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_PreToolUse_event_present=${rootPreToolUseCount} root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_event_present=${machinePreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_listen_all_if_non_os=0 machine_listen_all_if_non_os=${ports.available ? ports.all_interfaces_non_os : 'n/a'} root_tailnet=0 machine_tailnet=${ports.available ? ports.tailnet_only : 'n/a'} root_os_owned=0 machine_os_owned=${ports.available ? ports.os_owned_count : 'n/a'}`),
     G(3, '有記憶', memoryFiles.size > 0 ? 'pass' : 'fail',
       `root_memory_files=${rootMemoryFiles.size} machine_memory_files=${machineMemoryFiles.size} root_auto_memory_dirs=${rootMemDirsFromConfig} machine_auto_memory_dirs=${machineMemDirs}`),
     G(4, '有活路徑', recentLogs.length ? 'unknown' : 'fail',
@@ -534,15 +544,25 @@ function runCheckup() {
     G(6, '會派工給副腦', subagent_defs || queueDirs.length || brain.other_engines_on_path.length ? 'unknown' : 'fail',
       `root_subagents=${rootSubagentDefs} machine_subagents=${machineSubagentDefs} root_queue_dirs=${queueDirs.length} machine_queue_dirs=0 root_engines=0 machine_engines=${brain.other_engines_on_path.length} root_result_files=${resultFiles} machine_result_files=0`),
     G(7, '治理閘上線', hookEvents.has('PreToolUse') || denyCount ? 'pass' : 'fail',
-      `root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_allow=${rootAllowCount} machine_allow=${machineAllowCount}`),
+      `root_PreToolUse_event_present=${rootPreToolUseCount} root_PreToolUse_hook=${rootPreToolUseCount} machine_PreToolUse_event_present=${machinePreToolUseCount} machine_PreToolUse_hook=${machinePreToolUseCount} root_deny=${rootDenyCount} machine_deny=${machineDenyCount} root_allow=${rootAllowCount} machine_allow=${machineAllowCount}`),
     G(8, '會員／對外平台', 'manual_only', '自動偵測不涵蓋，只看 self_answer')
   ];
 
+  gates[1].subchecks = { ai_boundary: { auto: aiBoundary }, machine_exposure: { auto: machineExposure } };
+  for (const g of gates) {
+    if (scanTruncated && g.auto === 'fail' && !(g.gate === 2 && machineExposure === 'fail')) {
+      g.auto = 'unknown';
+      g.evidence += '；scan_truncated=true，走訪截斷，未找到不代表沒有';
+    }
+  }
+  if (scanTruncated && !allRulesFiles.length) gates[1].evidence += '；scan_truncated=true，規則未找到不代表沒有';
+  for (const g of [gates[1], gates[6]]) g.evidence += '；PreToolUse_event_present 是事件鍵有無（0/1），舊 PreToolUse_hook deprecated，非 hook 數量';
+
   const log = {
-    schema: SCHEMA, checkup_version: '1.2.2', generated_at: new Date().toISOString(), elapsed_ms: 0,
+    schema: SCHEMA, checkup_version: '1.2.3', generated_at: new Date().toISOString(), elapsed_ms: 0,
     machine, brain_type: brain, memory_rules, dispatch, ports, gates,
     first_auto_gap: (gates.find(g => g.auto === 'fail') || {}).gate || null,
-    scan_truncated: scan.truncated, scanned_entries: scan.entries.length,
+    scan_truncated: scanTruncated, scanned_entries: scan.entries.length,
     answers_file: exists(ANSWERS) ? short(ANSWERS) : null,
     note: '本 LOG 只描述現況，不判階段。階段與下一步看同目錄的對照表。'
   };

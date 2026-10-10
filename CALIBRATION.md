@@ -43,3 +43,9 @@ pass 是過，fail 是沒過。unknown 與 manual_only 不是過。
 - 歸法不一：定案的是每一列的「實際」和「誤判類型」原文。再收成工具判錯、自評漏報、讀法、無誤判，是依原文做的歸類，同一句原文可以有不同歸法。這份歸類沒有另外一次確認。
 - 工具版本混用：第 2、3 列是 `stage_report.ps1` v2.4b，第 4 列是同腳本 v2.1，該腳本不在這個 repo。第 5 列以後是 `aiwff_checkup.js` v1.1。這個目錄裡的腳本是 v1.2.2。不能把這張表讀成 v1.2.2 已經校準。
 - 反向測試這次不用本機設定、不靠本機路徑上的程式，埠號用樣本檔，用這個目錄裡的 `aiwff_checkup.js` 重跑。輸出放在這個目錄外面。不抄本機路徑，也不刊登比例。`fixture_gate1_missing_primary` 的目標是第 1 關，規格要求指定的主程式不存在時 fail、不得因路徑上其他引擎通過；這次第 1 關 auto=fail，evidence=`brain.type=none_detected`，fail 的原因是什麼都沒偵測到。腳本不讀指定的主程式，所以路徑上同時有其他 AI 程式時，原本的誤判仍會出現。`fixture_gate2_open_port` 的目標是第 2 關，規格要求非允許的 `0.0.0.0:45678 LISTEN` 時 fail；這次第 2 關 auto=fail，evidence 含 `machine_rules=0`、`machine_listen_all_if_non_os=1`，埠號 45678 有讀到。`fixture_gate2_noop_hook` 的目標是第 2 關，規格要求宣告 PreToolUse 但沒有證明拒絕未授權樣本時 fail；這次第 2 關 auto=pass，evidence 含 `root_PreToolUse_hook=1`、`machine_rules=0`。這仍是誤判：工具只數有宣告 PreToolUse，不驗它有沒有擋下未授權動作。`--no-machine` 會連埠號檔一起略過，第 2 關只能得到 unknown，這是腳本限制。基線裡本來就帶 `--no-machine` 的樣本這次沒有重跑。
+
+## v1.2.3 第 2 關子判定
+
+AI 邊界：沒有規則為 fail（走訪截斷則 unknown）；有規則且有 deny 或 PreToolUse 事件鍵為 pass；其餘 unknown。機器暴露面：未查或不可讀為 unknown（包含 --no-machine）；有非系統對外監聽埠為 fail；可讀且無此類埠為 pass。總判定：任一 fail 即 fail；兩者均 pass 才 pass；其餘 unknown。這裡的 pass 延續既有判定方向，不證明 hook 本體有效。
+
+走訪截斷時，因缺項而 fail 的關改 unknown；已找到而 pass 的方向保留，真實量到的埠 fail 保留。近期 log/jsonl 獨立深度三層掃描，只讀 mtime，不共享 5000 筆配額。總走訪跳過 file-history、cache、archive、backups、worktrees、.hypothesis、node_modules、.git。PreToolUse_event_present 表示事件鍵有無；PreToolUse_hook 保留一版並標 deprecated。

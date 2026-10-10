@@ -197,3 +197,6 @@ node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --a
 ## 授權
 
 `aiwff-checkup` 以 MIT 授權釋出；完整條文見 [LICENSE](LICENSE)。
+
+## v1.2.3（2026-10-11）
+：設定目錄選錯層，以及走訪截斷後把沒看到判成沒有；第 2 關分列 AI 邊界和機器暴露面；PreToolUse 事件鍵欄位明確標示，舊欄保留一版。
