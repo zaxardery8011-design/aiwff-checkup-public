@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 架構健檢 v1.3.0。零依賴。Windows、macOS、Linux 都能跑。
+// 架構健檢 v1.3.1。零依賴。Windows、macOS、Linux 都能跑。
 // Linux 與 macOS 不查行程擁有者。沒有 --tasklist-file 時，行程名稱是空的。
 // 第 2 關在這兩個系統上不靠行程名稱判斷「作業系統自己的埠」，主要靠固定埠表。
 // 固定埠表（含 22、445、3389，以及 135、139、5040、5357、7680、49664–49670、631、5000、7000）。
@@ -560,7 +560,7 @@ function runCheckup() {
   for (const g of [gates[1], gates[6]]) g.evidence += '；PreToolUse_event_present 是事件鍵有無（0/1），舊 PreToolUse_hook deprecated，非 hook 數量';
 
   const log = {
-    schema: SCHEMA, checkup_version: '1.3.0', generated_at: new Date().toISOString(), elapsed_ms: 0,
+    schema: SCHEMA, checkup_version: '1.3.1', generated_at: new Date().toISOString(), elapsed_ms: 0,
     machine, brain_type: brain, memory_rules, dispatch, ports, gates,
     first_auto_gap: (gates.find(g => g.auto === 'fail') || {}).gate || null,
     scan_truncated: scanTruncated, scanned_entries: scan.entries.length,

@@ -49,7 +49,7 @@ test('CLI wires evidence and no-machine keeps root evidence', () => {
   const r = cp.spawnSync(process.execPath,[path.join(__dirname,'../aiwff_checkup.js'),'--root',dir,'--out',out,'--no-machine','--report'],{encoding:'utf8'});
   assert.equal(r.status,0,r.stderr);
   const log=JSON.parse(fs.readFileSync(path.join(out,'aiwff_checkup_log.json'),'utf8'));
-  assert.equal(log.checkup_version,'1.3.0'); assert.equal(log.gates[3].auto,'pass');
+  assert.equal(log.checkup_version,'1.3.1'); assert.equal(log.gates[3].auto,'pass');
   assert.equal(log.brain_type.machine_config_enabled,false);
   assert.match(fs.readFileSync(path.join(out,'aiwff_checkup_report.md'),'utf8'),/找到近兩天與 runner 同名的非空產出/);
 });
