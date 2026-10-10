@@ -21,6 +21,6 @@ v1.2.2 起，`root` 是 `--root` 底下的資料，`machine` 是 `CLAUDE_CONFIG_
 | 7 治理閘上線 | 第 7 關 evidence 的 hook 與 deny | 有 PreToolUse 或 deny 大於 0 是 pass，否則 fail | 需要人陪：工具只數設定裡有沒有攔截名稱或拒絕條目，不試它真的擋不擋。叫 AI 補上名稱就能變過，所以不寫可貼的那段。 |
 | 8 會員／對外平台 | 第 8 關 `self_answer`（`auto` 固定 `manual_only`） | 自動偵測不判 | 請先問我用了哪些會對外的網站或帳號。每個只記名稱，以及誰負責看會員和公開範圍。不要登入、不要傳訊、不要上傳、不要付錢。清單先給我看，我同意才存。你不能把這關判成過。 |
 
-`schema` 應為 `aiwff_checkup_log/v1`。`checkup_version` 為 `1.3.0` 才是這支腳本寫的 LOG。第 3 關的 `memory_count_basis` 會列出計入的目錄類別、`.md`／`.json` 副檔名與去重規則。
+`schema` 應為 `aiwff_checkup_log/v1`。`checkup_version` 為 `1.3.1` 才是這支腳本寫的 LOG。第 3 關的 `memory_count_basis` 會列出計入的目錄類別、`.md`／`.json` 副檔名與去重規則。
 
 八關白話、貼給AI的話與確認方式見 [NEXT_STEPS_FOR_AI.md](NEXT_STEPS_FOR_AI.md)。上表下一步與該表貼給AI欄相同；第7關需要人陪。第4～6關正反證並存以正證據為準；舊走訪scan_truncated=true時fail降為unknown。
