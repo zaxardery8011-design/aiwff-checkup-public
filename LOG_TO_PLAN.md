@@ -1,6 +1,6 @@
 # LOG → 下一步
 
-讀 `aiwff_checkup_log.json`。這份 LOG 沒有「你在第幾關」的標題可以當結論。八關只看 `gates` 每一筆的 `auto`。`pass` 是過，`fail` 是沒過。第一個 `fail` 就是卡點，關號在 `first_auto_gap`。沒有 `fail` 時，`first_auto_gap` 是 null。加 `--report` 會在同一輸出目錄寫白話報告；它的「走到第幾關」以前一個非 `pass` 的前一關為準，不替代這份對照表。
+讀 `aiwff_checkup_log.json`。這份 LOG 沒有「你在第幾關」的標題可以當結論。八關只看 `gates` 每一筆的 `auto`。`pass` 是過，`fail` 是沒過。第一個 `fail` 就是卡點，關號在 `first_auto_gap`。沒有 `fail` 時，`first_auto_gap` 是 null。加 `--report` 會在同一輸出目錄寫白話報告。報告的「第一個缺口」與 `first_auto_gap` 相同，只指第一個 `fail`；沒有 `fail` 時那一節不寫關號。報告的「走到第幾關」是第一個非 `pass` 的前一關，`unknown` 與 `manual_only` 也會讓它停住，不替代 `first_auto_gap`。
 
 v1.2.2 起，`root` 是 `--root` 底下的資料，`machine` 是 `CLAUDE_CONFIG_DIR` 或使用者家目錄的共用設定。相關計數會以 `root`／`machine` 各帶 `scope` 與 `count` 的形式列出；第 2、3、6、7 關 evidence 也各自列兩個範圍。加 `--no-machine` 可只看 `--root`，不讀環境變數或家目錄設定。
 

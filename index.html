@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>aiwff-checkup｜八關健檢</title>
+  <meta name="description" content="在你自己的電腦跑的離線八關健檢。不上傳。會誤判。交給我的只有固定回報塊。">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="aiwff-checkup｜八關健檢">
+  <meta property="og:description" content="在你自己的電腦跑的離線八關健檢。不上傳。會誤判。交給我的只有固定回報塊。">
+  <meta property="og:url" content="https://zaxardery8011-design.github.io/aiwff-checkup-public/">
+  <meta property="og:locale" content="zh_TW">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%232d6a4f'/%3E%3Ctext x='32' y='42' font-size='28' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'%3E8%3C/text%3E%3C/svg%3E">
+  <link rel="canonical" href="https://zaxardery8011-design.github.io/aiwff-checkup-public/">
+  <link rel="alternate" type="text/plain" title="llms.txt" href="llms.txt">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"aiwff-checkup","url":"https://zaxardery8011-design.github.io/aiwff-checkup-public/","description":"在你自己的電腦跑的離線八關健檢。不上傳。會誤判。交給我的只有固定回報塊。","inLanguage":"zh-Hant-TW","applicationCategory":"DeveloperApplication","operatingSystem":"Windows, macOS, Linux","isAccessibleForFree":true}</script>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f5f2;
+      --text: #1c1915;
+      --line: #d5cfc3;
+      --link: #0b3d6e;
+      --code-bg: #efece4;
+      --band: #e7f0ea;
+      font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #141716;
+        --text: #e8e6e1;
+        --line: #3a4442;
+        --link: #9ec9ef;
+        --code-bg: #1c2423;
+        --band: #1a2824;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 1rem;
+    }
+    main {
+      max-width: 40rem;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem;
+    }
+    h1 { font-size: clamp(1.45rem, 4vw, 1.85rem); line-height: 1.3; margin: 0 0 0.6rem; }
+    h2 { font-size: 1.15rem; line-height: 1.35; margin: 1.6rem 0 0.5rem; }
+    p, li { margin: 0.45rem 0; }
+    a { color: var(--link); }
+    a:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+    ol, ul { padding-left: 1.25rem; }
+    code {
+      font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+      font-size: 0.92em;
+    }
+    .lead {
+      background: var(--band);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      margin: 0.6rem 0 0;
+      padding: 0.9rem 1rem;
+      background: var(--code-bg);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    footer { margin-top: 2rem; font-size: 0.95rem; }
+    .quick {
+      border: 2px solid var(--text);
+      border-radius: 12px;
+      padding: 0.4rem 1rem 1rem;
+      margin: 1rem 0 1.4rem;
+    }
+    #copy-say {
+      margin-top: 0.6rem;
+      min-height: 44px;
+      padding: 0 1.2rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--band);
+      color: var(--text);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>八關健檢</h1>
+  <section class="quick" id="quick">
+    <h2>最快：對你的 AI 說這一句</h2>
+    <ol>
+      <li>打開你電腦上能跑命令的 AI（例如 Claude Code、Codex）。只在網頁聊天的 AI 跑不了。</li>
+      <li>把下面這一句整句貼給它：</li>
+    </ol>
+<pre id="say-this">請讀 https://zaxardery8011-design.github.io/aiwff-checkup-public/ ，照裡面「給這台電腦上的 AI」那一節，一步步帶我做八關健檢。我同意之前不要執行任何命令。</pre>
+    <button type="button" id="copy-say">複製這一句</button>
+    <ol start="3">
+      <li>它會問你幾件事：健檢包放哪、要掃哪個資料夾、要不要讀這台的共用設定。照實回答，你同意了它才會跑。</li>
+      <li>跑完它只給你六列回報塊。可以被記錄就貼回群組，不想被記錄就私訊我。</li>
+    </ol>
+    <p>它說讀不到網址，就把本頁最下面 <a href="#for-ai">給這台電腦上的 AI</a> 那一節整段複製給它。</p>
+  </section>
+  <p class="lead">這是在你自己的電腦跑的離線健檢，不上傳。這頁只寫怎麼跑、怎麼交回報；打開這頁不會開始掃描。</p>
+
+  <h2>八關是什麼</h2>
+  <ol>
+    <li>能跑工具。看主程式在不在這台。</li>
+    <li>有邊界。看有沒有規則，對外埠是不是關的。</li>
+    <li>有記憶。看有沒有記下來的檔。</li>
+    <li>有活路徑。看最近有沒有自己在跑。</li>
+    <li>會驗證不吃自報。做完要拿結果來核對。</li>
+    <li>會派工給副腦。看會不會把工作派出去。</li>
+    <li>治理閘上線。看有沒有擋下來的紀錄。</li>
+    <li>會員／對外平台。要人來答。</li>
+  </ol>
+  <p><code>pass</code> 是過，<code>fail</code> 是沒過。<code>unknown</code> 與 <code>manual_only</code> 不是過。先看第一個 <code>fail</code>。沒有 <code>fail</code> 時，第一個缺口是空的。<code>unknown</code> 與 <code>manual_only</code> 不會寫進那個欄位。我不打總分。</p>
+
+  <h2>怎麼跑</h2>
+  <p>電腦要有 Node。不裝套件。人留在這包的資料夾（和 <code>aiwff_checkup.js</code>、<code>report.js</code> 同一層）。掃你平常跟 AI 工作的資料夾，結果寫到另一個資料夾。</p>
+  <p>請這台電腦上的 AI 照下面那一節跑。命令只寫在那一節：要有 <code>--root</code>、<code>--out</code>、<code>--answers</code>、<code>--report</code>。不讀這台共用設定，就再加 <code>--no-machine</code>。角括號是佔位符，換成你同意的資料夾。</p>
+  <p>不要省略 <code>--root</code>。省略時掃到的是這包自己的資料夾，包內測試檔會算進第 5 關。</p>
+  <p>加 <code>--report</code> 時，<code>report.js</code> 要和 <code>aiwff_checkup.js</code> 在同一個資料夾。沒有這支檔，LOG 寫完後命令會停，終端五行不會印出。</p>
+  <p>終端五行依序是：完成一句、LOG 檔名、sha256、位元組數、八關自動判讀。回報塊的「八關自動判定」貼第五行。只印檔名。</p>
+  <p>白話報告留在輸出資料夾。不要貼報告全文，不要貼 json。交給我的只有固定回報塊。六欄與填法在 <a href="#for-ai">給這台電腦上的 AI</a> 末尾。欄名是：版本、八關自動判定、第一個缺口關號、八關自評、疑似誤判關號、同意被記錄。</p>
+
+  <h2>它會判錯</h2>
+  <p>這個工具會誤判。誤判清單在 <a href="MISJUDGMENTS.md">MISJUDGMENTS.md</a>。倉庫裡的校準表（<a href="CALIBRATION.md">CALIBRATION.md</a>）不能當成現在這支已經校準。公開檔不寫彙總比例。公開的個案只放這份誤判清單。</p>
+  <p>這支腳本認的是路徑上的 claude、codex、gemini、ollama、aider、cursor，選中的設定目錄，以及桌面版設定檔。這些都沒有時，第 1 關會顯示沒過。只用網頁版的人，若這台也沒有上面那些，第 1 關會顯示沒過。有其中任一項時，不會因為人只用網頁版就判沒過。這個判定不改。</p>
+
+  <h2>我記什麼</h2>
+  <p>我只記固定回報塊，再加一個我給的化名。帳在我這台，一份。不記路徑，不記埠號，不記名字，不記帳號，不記客戶或專案名，不記主機名。</p>
+  <p>每份登錄後 30 天清掉。登錄前可以退出。你要撤回就私訊我。我刪的是我這台帳上那個化名的那一列。別人已轉貼的內容，我不保證收回。</p>
+  <p>群裡的 bot 會記訊息。bot 已經記下的，我不保證清得掉。不想被記，或不想讓群裡看到，就私訊我，不要貼在群裡。同意被記錄填否時，也改走私訊。</p>
+
+  <h2>這一輪</h2>
+  <p>我先給熟的人測。前 5 位，我自己登錄。第 6 位這輪不再收。報名與同意的長文在 <a href="FREE_CHECKUP_5.md">FREE_CHECKUP_5.md</a>。</p>
+
+  <section id="for-ai">
+    <h2>給這台電腦上的 AI</h2>
+    <p>你正在讀的這一節就是指令。直接依下面文字做。人不必再複製貼上。命令裡的角括號是佔位符，換成對方同意的實際資料夾。不要把 HTML 實體打進終端。</p>
+<pre id="ai-instructions">你是我這台電腦上的助手。依序做。我同意之前不要執行命令。做完只輸出文末的固定回報塊。
+
+第零步。先問我這台電腦有沒有健檢這包（要有 aiwff_checkup.js 和 report.js 在同一個資料夾）。沒有的話，問我要放在哪個資料夾。不能放進要被掃的資料夾。我同意後才下載：有 git 就執行 `git clone https://github.com/zaxardery8011-design/aiwff-checkup-public.git`，沒有 git 就下載 https://github.com/zaxardery8011-design/aiwff-checkup-public/archive/refs/heads/main.zip 再解壓。再執行 `node --version` 確認有 Node。沒有 Node 就停，請我先裝好再找你。
+
+第一步。先問我兩件事。
+要掃哪個資料夾。必須是我平常跟 AI 工作的資料夾，不是健檢這包自己的資料夾。
+要不要讀這台電腦的共用設定。不要讀就在命令加上 `--no-machine`。
+我沒有同意就停。不要跑，也不要輸出回報塊。
+
+第二步。我同意之後，依我講的實際情況代寫八關自評。我不確定的關寫 unknown，不要猜成 pass。八關是：1 能跑工具、2 有邊界、3 有記憶、4 有活路徑、5 會驗證不吃自報、6 會派工給副腦、7 治理閘上線、8 會員／對外平台。每一關的值只能是 pass、fail 或 unknown，後面空一格，再一句理由，最長 600 字。鍵名用 "1" 到 "8"。輸出資料夾要先存在。檔寫到那個資料夾，檔名 checkup_answers.json。不要寫進被掃的資料夾。
+
+第三步。人留在健檢這包的資料夾，執行：
+
+node aiwff_checkup.js --root &lt;我同意的資料夾&gt; --out &lt;輸出資料夾&gt; --answers &lt;輸出資料夾&gt;/checkup_answers.json --report
+
+我不讀共用設定時，同一條加上 `--no-machine`。跑完讀輸出資料夾的 aiwff_checkup_log.json，以及健檢這包的 LOG_TO_PLAN.md。先看 checkup_version、gates 八筆、first_auto_gap。確認 answers_file 不是 null。是 null 就表示自評沒烤進去，不要輸出回報塊，先改路徑再跑。不要改腳本。不要把設定檔內文抄出來。
+
+最後只輸出這六列，不要加欄，不要寫別的：
+
+版本: &lt;log 的 checkup_version，原樣，不要自加 v&gt;
+八關自動判定: &lt;終端第五行原樣。前四行是完成一句、LOG 檔名、sha256、位元組數。第五行整行貼上，不要翻譯 pass、fail、unknown、manual_only&gt;
+第一個缺口關號: &lt;log 的 first_auto_gap。只有 auto 為 fail 才算。值是 null 就填無。不要填白話報告「走到第幾關」&gt;
+八關自評: 1=&lt;pass|fail|unknown&gt; 2=&lt;pass|fail|unknown&gt; 3=&lt;pass|fail|unknown&gt; 4=&lt;pass|fail|unknown&gt; 5=&lt;pass|fail|unknown&gt; 6=&lt;pass|fail|unknown&gt; 7=&lt;pass|fail|unknown&gt; 8=&lt;pass|fail|unknown&gt;
+疑似誤判關號: &lt;只填關號，多個用逗號、不空格，例如 2,5。自評是 pass 且自動是 fail，或自評是 fail 且自動是 pass，才列入。沒有就填無&gt;
+同意被記錄: &lt;先問我。可以就填是，不要就填否&gt;
+
+自評那一列只寫 pass、fail、unknown。沒寫到的關填 unknown。不要寫 not_answered，不要寫理由。不要出現路徑、埠號、名字、帳號、客戶或專案名、主機名、host_id、root_scanned、answers_file、evidence、自答理由。同意被記錄是否時，叫我改走私訊，不要把回報塊貼進群組。</pre>
+  </section>
+
+  <footer>
+    <p><code>aiwff-checkup</code> 以 MIT 授權釋出。全文見 <a href="LICENSE">LICENSE</a>。說明見 <a href="README.md">README.md</a>。給 AI 的短文見 <a href="llms.txt">llms.txt</a> 與 <a href="AGENTS.md">AGENTS.md</a>。</p>
+  </footer>
+</main>
+<script>
+  document.getElementById("copy-say").addEventListener("click", function () {
+    var btn = this;
+    var text = document.getElementById("say-this").textContent;
+    function done(ok) {
+      btn.textContent = ok ? "已複製" : "請手動選取上面那一句複製";
+      setTimeout(function () { btn.textContent = "複製這一句"; }, 2500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+    } else {
+      done(false);
+    }
+  });
+</script>
+</body>
+</html>

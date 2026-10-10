@@ -1,0 +1,33 @@
+# aiwff-checkup
+
+> 在你自己的電腦跑的離線八關健檢（繁體中文）。這頁不上傳、不代替掃描。公開的個案只放誤判清單。交給我的只有固定回報塊。
+
+- 給人看：https://zaxardery8011-design.github.io/aiwff-checkup-public/
+- 給 AI 的唯一手順：https://zaxardery8011-design.github.io/aiwff-checkup-public/#for-ai
+- 給 AI 代理的短說明：https://zaxardery8011-design.github.io/aiwff-checkup-public/AGENTS.md
+- 同一份說明的 Markdown：https://zaxardery8011-design.github.io/aiwff-checkup-public/README.md
+- 倉庫：https://github.com/zaxardery8011-design/aiwff-checkup-public
+
+## 怎麼跑
+- 掃描在參與者自己的電腦上執行，要有 Node，不裝套件，不上傳。
+- 這台還沒有健檢這包時，先問人要放在哪個資料夾（不能放進要被掃的資料夾），同意後才 `git clone` 或下載 main.zip。
+- 手順只照首頁 `#for-ai`。那一節與倉庫 README「複製給你的 AI」的指令正文相同。
+- 先問要掃哪個資料夾、要不要讀這台共用設定。人同意之前不要執行命令。
+- 資料夾必須是人平常跟 AI 工作的資料夾。不要省略 `--root`。
+- 做完只輸出 `#for-ai` 末尾那六列。不要貼報告全文，不要貼 json。
+
+## 八關
+- 1 能跑工具、2 有邊界、3 有記憶、4 有活路徑、5 會驗證不吃自報、6 會派工給副腦、7 治理閘上線、8 會員／對外平台。
+- 先看第一個 fail。不打總分。誤判清單在 MISJUDGMENTS.md。校準表不能當成現在這支已經校準。
+
+## 本頁網址
+- 沒有會啟動掃描的網址參數。`#for-ai` 只是頁內指令位置。
+- 只用網頁版、而且這台也沒有腳本認得的那些工具、設定目錄或桌面版設定檔時，第 1 關會顯示沒過。這個判定不改。
+
+## 記錄
+- 我只記固定回報塊，再加一個我給的化名。帳在我這台，一份。
+- 不記路徑、埠號、名字、帳號、客戶或專案名、主機名。
+- 每份登錄後 30 天清掉。要撤回就私訊我。不想被記就不要貼在群裡。
+
+## 授權
+- MIT。全文見倉庫 LICENSE。

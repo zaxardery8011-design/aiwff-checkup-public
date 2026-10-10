@@ -40,6 +40,21 @@ test('--no-machine 時第 1 關的白話理由說明是沒查，不是沒裝', (
   assert.match(on, /1 能跑工具 \| 沒過 \| 沒有找到可用的主程式或相關工具。/);
 });
 
+test('第一個缺口只指第一個 fail，走到第幾關仍停在第一個非 pass', () => {
+  const names = ['能跑工具', '有邊界', '有記憶', '有活路徑', '會驗證不吃自報', '會派工給副腦', '治理閘上線', '會員／對外平台'];
+  const autos = ['pass', 'unknown', 'pass', 'pass', 'fail', 'unknown', 'pass', 'manual_only'];
+  const mixed = names.map((name, i) => ({ gate: i + 1, name, auto: autos[i], evidence: '', self_answer: 'not_answered' }));
+  const md = buildReport({ gates: mixed, brain_type: { machine_config_enabled: true } });
+  assert.match(md, /走到第 1 關/);
+  assert.match(md, /卡在第 5 關/);
+  assert.doesNotMatch(md, /卡在第 2 關/);
+  const noFail = names.map((name, i) => ({ gate: i + 1, name, auto: i === 7 ? 'manual_only' : 'pass', evidence: '', self_answer: 'not_answered' }));
+  const md2 = buildReport({ gates: noFail, brain_type: { machine_config_enabled: true } });
+  assert.match(md2, /走到第 7 關/);
+  assert.match(md2, /沒有自動判定為沒過的關/);
+  assert.doesNotMatch(md2, /卡在第 8 關/);
+});
+
 test('--root 指到不存在的資料夾會停下，不寫 LOG', () => {
   const out = fs.mkdtempSync(path.join(os.tmpdir(), 'aiwff-'));
   const r = cp.spawnSync(process.execPath, [SCRIPT, '--root', path.join(out, 'nope'), '--out', out, '--no-machine'], { encoding: 'utf8' });

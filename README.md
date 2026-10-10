@@ -1,5 +1,11 @@
 ## 給群組幫忙測的人
 
+最快：打開你電腦上能跑命令的 AI（例如 Claude Code、Codex），把這一句整句貼給它：
+
+請讀 https://zaxardery8011-design.github.io/aiwff-checkup-public/ ，照裡面「給這台電腦上的 AI」那一節，一步步帶我做八關健檢。我同意之前不要執行任何命令。
+
+它會問你健檢包放哪、要掃哪個資料夾、要不要讀這台的共用設定，你同意了它才會跑。跑完它只給你六列回報塊。它說讀不到網址，就把下面「複製給你的 AI」整段貼給它。
+
 這是測試版，工具會誤判；誤判清單在 `MISJUDGMENTS.md`，請幫忙抓新的問題。先確認電腦有 Node。人留在這包的資料夾，掃你平常跟 AI 工作的資料夾，結果寫到另一個資料夾：
 
 node aiwff_checkup.js --root <你平常跟 AI 工作的資料夾> --out <另一個資料夾> --report
@@ -11,6 +17,8 @@ node aiwff_checkup.js --root <你平常跟 AI 工作的資料夾> --out <另一�
 把下面整段貼給你的 AI。它問完、你同意之前，不要讓它跑。
 
 你是我這台電腦上的助手。依序做。我同意之前不要執行命令。做完只輸出文末的固定回報塊。
+
+第零步。先問我這台電腦有沒有健檢這包（要有 aiwff_checkup.js 和 report.js 在同一個資料夾）。沒有的話，問我要放在哪個資料夾。不能放進要被掃的資料夾。我同意後才下載：有 git 就執行 `git clone https://github.com/zaxardery8011-design/aiwff-checkup-public.git`，沒有 git 就下載 https://github.com/zaxardery8011-design/aiwff-checkup-public/archive/refs/heads/main.zip 再解壓。再執行 `node --version` 確認有 Node。沒有 Node 就停，請我先裝好再找你。
 
 第一步。先問我兩件事。
 要掃哪個資料夾。必須是我平常跟 AI 工作的資料夾，不是健檢這包自己的資料夾。
@@ -42,7 +50,7 @@ node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --a
 
 離線電腦健檢工具。
 
-免費健檢 5 位的報名、同意與交付流程見 [FREE_CHECKUP_5.md](FREE_CHECKUP_5.md)。公開材料只取本目錄。開發目錄不一起發布。公開每位結果只用經本人確認及人刪稿的白話報告，不公開原始 json。
+免費健檢 5 位的報名、同意與交付流程見 [FREE_CHECKUP_5.md](FREE_CHECKUP_5.md)。公開材料只取本目錄。開發目錄不一起發布。每位結果只交「複製給你的 AI」末尾的固定回報塊。白話報告與原始 json 留在參與者的輸出資料夾。
 
 給主人：這包用來檢查一台電腦上的工具、規則、記憶與對外埠。電腦已經有 Node 就好，不裝套件，也不上傳。跑完會寫出一份 json；加上 `--report` 還會寫一份給人讀的 Markdown 報告。你可以把 json 交給你的 AI，也可以先讀報告。
 
@@ -113,7 +121,7 @@ log 會留下 `host_id`、CPU 數、記憶體、作業系統、Node 版、埠號
 
 ## 給人看的報告
 
-加 `--report` 時，LOG 旁會多出 `aiwff_checkup_report.md`。它固定有四段：你目前走到第幾關、八關白話表、第一個缺口與一件最小下一步、以及這份報告看不到的事情。表中的「（來自這台電腦的共用設定）」表示該關有採到 `machine` 範圍；要隔離它就用 `--no-machine`。報告會顯示你的自答。自答可能留下識別線索。對外使用前，必須由人刪稿並交本人確認。
+加 `--report` 時，LOG 旁會多出 `aiwff_checkup_report.md`。它固定有四段：你目前走到第幾關、八關白話表、第一個缺口與一件最小下一步、以及這份報告看不到的事情。「走到第幾關」是第一個 auto 不是 pass 的前一關，unknown 與 manual_only 也會讓它停住。「第一個缺口」只指第一個 auto 為 fail 的關，與回報塊的「第一個缺口關號」相同；沒有 fail 時這一節不寫關號。表中的「（來自這台電腦的共用設定）」表示該關有採到 `machine` 範圍；要隔離它就用 `--no-machine`。報告會顯示你的自答。自答可能留下識別線索。這份報告留在輸出資料夾。不要貼報告全文，不要交給作者。交給作者的只有固定回報塊。
 
 ## 自評檔要先放好
 
@@ -176,7 +184,7 @@ node gap.js <log 的路徑>
 
 只使用 (b)。人留在這包的資料夾，執行：
 
-node aiwff_checkup.js --root <要檢查的目錄> --out <輸出目錄> --report
+node aiwff_checkup.js --root <我同意的資料夾> --out <輸出資料夾> --answers <輸出資料夾>/checkup_answers.json --report
 
 要只看指定資料夾、不讀這台共用設定，就加 `--no-machine`。不要使用 (a)。不要省略 `--root`。
 
